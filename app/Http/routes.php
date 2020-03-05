@@ -11,14 +11,21 @@
 |
 */
 
+Auth::routes(['register' => false]);
+
 Route::get('/', function () {
     return view('search');
 });
 
 Route::post('check', ['as' => 'points.check', 'uses' => 'PointsController@checkCode']);
 
-Route::any('admin/routes', ['as' => 'admin.routes', 'uses' => 'RoutesController@admin']);
 
-Route::get('admin/codes', function () {
-    return view('codes');
+Route::name('admin.')->middleware('auth')->group(function () {
+    Route::any('admin/routes', ['as' => 'admin.routes', 'uses' => 'RoutesController@admin']);
+
+	Route::get('admin/codes', function () {
+		return view('codes');
+	});
 });
+
+

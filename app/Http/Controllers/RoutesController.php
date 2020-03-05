@@ -6,6 +6,7 @@ use App\Models\Route;
 
 class RoutesController extends Controller {
 	public function admin(Request $request) {
+		
 		if($request->isMethod('post') && $request->add) {
 			$startPoint = new Point;
 			$startPoint->lat = $request->lat;
@@ -29,6 +30,15 @@ class RoutesController extends Controller {
 				]
 			]);
 		} else if($request->isMethod('post') && $request->edit) {
+			if(Point::where('code', '=', $request->code)->where('id', '<>', $request->point_id)->exists()) {
+				return redirect()->back()->with([
+					'mapCenter' => [
+						$request->lat,
+						$request->lng
+					],
+					'message' => 'QR code is al in gebruik',
+				]);
+			}
 			$point = Point::find($request->point_id);
 			$point->lat = $request->lat;
 			$point->lng = $request->lng;

@@ -212,32 +212,6 @@
 			html: '<i class="fas fa-asterisk"></i>'
 		}));
 	});
-	$('#fullScreen').click(function() {
-		if($(document.body).hasClass('fullscreen')) {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if (document.webkitExitFullscreen) {
-				document.webkitExitFullscreen();
-			} else if (document.mozCancelFullScreen) {
-				document.mozCancelFullScreen();
-			} else if (document.msExitFullscreen) {
-				document.msExitFullscreen();
-			}
-			$(document.body).removeClass('fullscreen');
-			map.invalidateSize();
-		} else {
-			if (document.body.requestFullscreen) {
-			  document.body.requestFullscreen();
-			} else if (document.body.webkitRequestFullscreen) {
-			  document.body.webkitRequestFullscreen();
-			} else if (document.body.mozRequestFullScreen) {
-			  document.body.mozRequestFullScreen();
-			} else if (document.body.msRequestFullscreen) {
-			  document.body.msRequestFullscreen();
-			}
-			$(document.body).addClass('fullscreen');
-		}
-	});
 	
 	var map = L.map('map').setView({!! json_encode($mapCenter) !!}, 13);
 
@@ -389,6 +363,14 @@
 	@if($mapFit)
 	map.fitBounds(L.latLngBounds(latLngs));
 	@endif
+	
+	@if(session()->has('message'))
+	$('#status #message').text('{{ session()->get('message') }}');
+	$('#status').addClass('active');
+	@endif
+	$('#status .button.close').click(function() {
+		$('#status').removeClass('active');
+	});
 </script>
 <script type="module">
 	import QrScanner from "./js/qr-scanner.js";

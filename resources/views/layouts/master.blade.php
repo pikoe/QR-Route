@@ -24,6 +24,20 @@
 </head>
 <body>
 	@yield('content')
+	
+	@auth
+	<form id="logout-form" action="{{ route('logout') }}" method="POST">
+		@csrf
+		<button class="button"><i class="fas fa-unlock-alt"></i></button>
+		<div class="user">{{ auth()->user()->name }}</div>
+	</form>
+	@else
+		@if(request()->is('login'))
+			<a href="/" class="button" id="login"><i class="fas fa-home"></i></a>
+		@else
+			<span class="button" id="login"><i class="fas fa-key"></i></span>
+		@endif
+	@endauth
 
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -39,6 +53,52 @@
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			}
 		});
+		
+		$('#fullScreen').click(function() {
+			if($(document.body).hasClass('fullscreen')) {
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.webkitExitFullscreen) {
+					document.webkitExitFullscreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.msExitFullscreen) {
+					document.msExitFullscreen();
+				}
+				$(document.body).removeClass('fullscreen');
+				map.invalidateSize();
+			} else {
+				if (document.body.requestFullscreen) {
+				  document.body.requestFullscreen();
+				} else if (document.body.webkitRequestFullscreen) {
+				  document.body.webkitRequestFullscreen();
+				} else if (document.body.mozRequestFullScreen) {
+				  document.body.mozRequestFullScreen();
+				} else if (document.body.msRequestFullscreen) {
+				  document.body.msRequestFullscreen();
+				}
+				$(document.body).addClass('fullscreen');
+			}
+		});
+		
+		(function() { 
+			// how many milliseconds is a long press?
+			var longpress = 2000;
+			// holds the start time
+			var start;
+
+			$('span#login').on('mousedown touchstart', function() {
+				start = new Date().getTime();
+			}).on('mouseleave touchcancel', function() {
+				start = 0;
+			}).on('mouseup touchend', function() {
+				if(new Date().getTime() >= start + longpress) {
+				    location.href = '{{ route('login') }}';   
+				} else {
+				    alert('scan code');
+				}
+			});
+		}());
 	</script>
 @yield('scripts')
 </body>

@@ -4,11 +4,11 @@
 	<div id="map" class="full-map"></div>
 	<div id="fullScreen" class="button"><i class="fas fa-compress"></i><i class="fas fa-expand"></i></div>
 
-	<div id="qrScanner">
+	<div id="qrScanner" class="overlay">
 		<video muted playsinline autoplay></video>
 		<div class="button close"><i class="fa fa-times"></i></div>
 	</div>
-	<div id="status">
+	<div id="status" class="overlay">
 		<div id="load" class="text-center"><i class="fas fa-spinner fa-pulse"></i></div>
 		<div class="button close"><i class="fa fa-times"></i></div>
 		<div id="message"></div>
@@ -17,33 +17,6 @@
 
 @section('scripts')
 <script type="text/javascript">
-	$('#fullScreen').click(function() {
-		if($(document.body).hasClass('fullscreen')) {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if (document.webkitExitFullscreen) {
-				document.webkitExitFullscreen();
-			} else if (document.mozCancelFullScreen) {
-				document.mozCancelFullScreen();
-			} else if (document.msExitFullscreen) {
-				document.msExitFullscreen();
-			}
-			$(document.body).removeClass('fullscreen');
-			map.invalidateSize();
-		} else {
-			if (document.body.requestFullscreen) {
-			  document.body.requestFullscreen();
-			} else if (document.body.webkitRequestFullscreen) {
-			  document.body.webkitRequestFullscreen();
-			} else if (document.body.mozRequestFullScreen) {
-			  document.body.mozRequestFullScreen();
-			} else if (document.body.msRequestFullscreen) {
-			  document.body.msRequestFullscreen();
-			}
-			$(document.body).addClass('fullscreen');
-		}
-	});
-	
 	var map = L.map('map').setView([52.20142, 6.20114], 13);
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
