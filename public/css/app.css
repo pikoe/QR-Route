@@ -1,0 +1,135 @@
+* {
+	
+}
+html,
+body {
+	margin: 0;
+	padding: 0;
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+label.input-group-prepend,
+label.input-group-append {
+	margin-bottom: 0;
+}
+.full-map {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+}
+.button {
+	position: absolute;
+	z-index: 2;
+	width: 26px;
+	height: 26px;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+}
+.button i {
+	line-height: 26px;
+	width: 26px;
+	height: 26px;
+	
+	text-align: center;
+}
+
+.button#fullScreen {
+	right: 10px;
+	top: 10px;
+}
+.button#fullScreen i.fa-compress {
+	display: none;
+}
+.fullscreen .button#fullScreen i.fa-expand {
+	display: none;
+}
+.fullscreen .button#fullScreen i.fa-compress {
+	display: block;
+}
+
+.button#centerMap {
+	right: 10px;
+	top: 46px;
+}
+.button#addRoute {
+	right: 10px;
+	top: 82px;
+}
+
+
+.button.close {
+	right: 10px;
+	top: 10px;
+}
+
+.overlay {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #cc6633;
+	border-radius: 3px;
+	background: #fff;
+	box-sizing: border-box;
+	z-index: 2;
+	margin: 0 5px;
+	top: 5px;
+	display: none;
+}
+.overlay.active {
+	display: block;
+}
+.form-overlay {
+	display: none;
+	min-height: 46px;
+	padding: 10px;
+}
+.overlay h2 {
+	font-size: 22px;
+	line-height: 26px;
+}
+
+#qrScanner::after {
+	content: "";
+	display: block;
+	padding-bottom: 100%;
+}
+#qrScanner video {
+	position: absolute;
+}
+
+#status {
+	display: none;
+	min-height: 46px;
+	padding: 10px;
+}
+#status #load {
+	display: none;
+	margin: 0 auto;
+}
+#status.load #load {
+	display: block;
+}
+#status.active button.close,
+#status #message {
+	display: none;
+}
+#status.load,
+#status.active,
+#status.active #message,
+#status.active button.close {
+	display: block;
+}
+
+div.svg-marker i {
+	top: 8px;
+    right: 0;
+    left: 0;
+    font-size: 16px;
+    display: block;
+    position: absolute;
+    text-align: center;
+}
