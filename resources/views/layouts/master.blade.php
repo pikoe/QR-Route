@@ -93,9 +93,9 @@
 				start = 0;
 			}).on('mouseup touchend', function() {
 				if(new Date().getTime() >= start + longpress) {
-				    location.href = '{{ route('login') }}';   
+					location.href = '{{ route('admin.routes') }}';
 				} else {
-				    alert('scan code');
+				    $(this).trigger('shortclick');
 				}
 			});
 		}());

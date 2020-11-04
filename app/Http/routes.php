@@ -18,10 +18,11 @@ Route::get('/', function () {
 });
 
 Route::post('check', ['as' => 'points.check', 'uses' => 'PointsController@checkCode']);
+Route::post('update', ['as' => 'points.update', 'uses' => 'PointsController@updateLocation']);
 
 
 Route::name('admin.')->middleware('auth')->group(function () {
-    Route::any('admin/routes', ['as' => 'admin.routes', 'uses' => 'RoutesController@admin']);
+    Route::any('admin/routes', ['as' => 'routes', 'uses' => 'RoutesController@admin']);
 
 	Route::get('admin/codes', function () {
 		return view('codes');

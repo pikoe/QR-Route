@@ -30,7 +30,7 @@ class RoutesController extends Controller {
 				]
 			]);
 		} else if($request->isMethod('post') && $request->edit) {
-			if(Point::where('code', '=', $request->code)->where('id', '<>', $request->point_id)->exists()) {
+			if($request->code !== null && Point::where('code', '=', $request->code)->where('id', '<>', $request->point_id)->exists()) {
 				return redirect()->back()->with([
 					'mapCenter' => [
 						$request->lat,

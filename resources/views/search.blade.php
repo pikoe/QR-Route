@@ -34,9 +34,9 @@
 		
 		popupAnchor: [0, -43] // point from which the popup should open relative to the iconAnchor
 	});
-	L.marker([52.20142, 6.20114], {
+	/*L.marker([52.20142, 6.20114], {
 		icon: markerIcon
-	}).addTo(map);
+	}).addTo(map);*/
 	
 	var markerStepsIcon = L.icon({
 		iconUrl: 'img/marker-steps.png',
@@ -78,6 +78,14 @@
 		weight: 2
 	}).addTo(map);
 	
+	var positionUpdateAt = 0,
+		positionPostAt = 0,
+	//	positionUpdateInterval = 2 * 60 * 1000,// 2 min, sturen als je verplaatst bent
+	//	positionPostInterval = 5 * 60 * 1000,// 5 min, sturen ook als je niet verplaatst bent
+		positionUpdateInterval = 2 * 1000,// 2 sec, sturen als je verplaatst bent
+		positionPostInterval = 5 * 1000,// 5 sec, sturen ook als je niet verplaatst bent
+		positionPostTimeout = null;
+	
 	if (navigator.geolocation) {
 		var positionAccuracy = L.circle([52.20142, 6.20114], {
 			radius: 1,
@@ -99,10 +107,33 @@
 				positionHistoryLine.setLatLngs(positionHistory);
 				
 				searchLine.setLatLngs([nextCode, [position.coords.latitude, position.coords.longitude]]);
+				positionUpdateAt = new Date().getTime();
+			}
+			
+			if(positionUpdateAt < positionPostAt + positionUpdateInterval) {
+				postPosition();
 			}
 		}
 		navigator.geolocation.watchPosition(currentPosition);
 	}
+	
+	function postPosition() {
+		clearTimeout(positionPostTimeout);
+		positionPostAt = new Date().getTime();
+		$.ajax({
+			url: '{{ route('points.update') }}',
+			method: 'POST',
+			data: positionHistory.length ? {
+				lat: positionHistory[positionHistory.length - 1][0],
+				lng: positionHistory[positionHistory.length - 1][1]
+			} : {},
+			context: document.body
+		}).done(function(data) {
+			console.log(data);
+		});
+		positionPostTimeout = setTimeout(postPosition, positionPostInterval);
+	}
+	postPosition();
 </script>
 <script type="module">
 	import QrScanner from "./js/qr-scanner.js";
@@ -165,6 +196,11 @@
 	
 	$('#status .button.close').click(function() {
 		$('#status').removeClass('active');
+	});
+	
+	$('#login').on('shortclick', function() {
+		$('#qrScanner').addClass('active');
+		scanner.start();
 	});
 	map.invalidateSize();
 </script>

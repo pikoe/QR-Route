@@ -30,19 +30,26 @@ label.input-group-append {
 	width: 100%;
 	z-index: 1;
 }
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 0;
+	border-radius: 4px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+}
+
 .button {
 	position: absolute;
 	z-index: 2;
-	width: 26px;
-	height: 26px;
+	width: 30px;
+	height: 30px;
 	border-radius: 4px;
 	background: #fff;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
 }
 .button i {
-	line-height: 26px;
-	width: 26px;
-	height: 26px;
+	line-height: 30px;
+	width: 30px;
+	height: 30px;
 	
 	text-align: center;
 }
@@ -63,11 +70,11 @@ label.input-group-append {
 
 .button#centerMap {
 	right: 10px;
-	top: 46px;
+	top: 50px;
 }
 .button#addRoute {
 	right: 10px;
-	top: 82px;
+	top: 90px;
 }
 
 
@@ -91,9 +98,9 @@ label.input-group-append {
 #logout-form .user {
 	position: absolute;
 	z-index: 2;
-	left: 46px;
+	left: 50px;
 	bottom: 10px;
-	line-height: 26px;
+	line-height: 30px;
 	text-shadow: 0px 0px 2px #fff;
 	pointer-events: none;
 }
@@ -109,11 +116,18 @@ label.input-group-append {
 	top: 5px;
 	display: none;
 }
-
 #loginForm {
 	z-index: 1;
 	position: relative;
-	padding: 10px 61px;
+	padding: 10px;
+    min-height: 100%;
+	
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#loginForm > div {
+	width: 100%;
 }
 
 .overlay.active {
@@ -160,6 +174,9 @@ label.input-group-append {
 	display: block;
 }
 
+div.svg-marker {
+	position: relative;
+}
 div.svg-marker i {
 	top: 8px;
     right: 0;

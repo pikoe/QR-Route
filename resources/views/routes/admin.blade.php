@@ -98,9 +98,25 @@
 
 @section('scripts')
 <script type="text/javascript">
+	var centerMode = 'routes';
 	$('#centerMap').click(function() {
-		if(positionHistory.length)
-			map.panTo(positionHistory[positionHistory.length - 1]);
+		if(centerMode == 'routes') {
+			if(positionHistory.length) {
+				map.panTo(positionHistory[positionHistory.length - 1]);
+			}
+			centerMode = 'current';
+		} else if(centerMode == 'current') {
+			var latLngsAndCurrent = latLngs;
+			if(positionHistory.length) {
+				latLngsAndCurrent.push(positionHistory[positionHistory.length - 1]);
+			}
+			map.fitBounds(L.latLngBounds(latLngs));
+			centerMode = 'routesAndCurrent';
+		} else if(centerMode == 'routesAndCurrent') {
+			map.fitBounds(L.latLngBounds(latLngs));
+			centerMode = 'routes';
+		}
+		
 	});
 	$('#addRoute').click(function() {
 		$('form#add').addClass('active');
