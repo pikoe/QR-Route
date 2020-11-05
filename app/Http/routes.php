@@ -23,6 +23,7 @@ Route::post('update', ['as' => 'points.update', 'uses' => 'PointsController@upda
 
 Route::name('admin.')->middleware('auth')->group(function () {
     Route::any('admin/routes', ['as' => 'routes', 'uses' => 'RoutesController@admin']);
+    Route::any('admin/clients', ['as' => 'clients', 'uses' => 'ClientsController@admin']);
 
 	Route::get('admin/codes', function () {
 		return view('codes');

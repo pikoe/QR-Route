@@ -25,7 +25,7 @@ class Route extends Model {
     protected $fillable = [
         'name',
 		'color',
-		'second_color'
+		'second_color',
     ];
 
     /**

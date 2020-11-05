@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\Models\Point;
 use App\Models\Route;
+use App\Models\Client;
 
 class RoutesController extends Controller {
 	public function admin(Request $request) {
@@ -113,6 +114,7 @@ class RoutesController extends Controller {
 		
 		return view('routes.admin', [
 			'routes' => Route::all(),
+			'clients' => Client::all(),
 			'mapFit' => !$request->session()->has('mapCenter'),
 			'mapCenter' => $request->session()->get('mapCenter', [51.75294164, 5.89340866]),
 		]);

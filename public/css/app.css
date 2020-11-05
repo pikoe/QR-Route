@@ -76,7 +76,24 @@ label.input-group-append {
 	right: 10px;
 	top: 90px;
 }
+.button#addClient {
+	right: 10px;
+	top: 130px;
+}
 
+#clients {
+	position: absolute;
+	z-index: 2;
+	width: 30px;
+	top: 70px;
+	left: 10px;
+}
+#clients i {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+}
 
 .button.close {
 	right: 10px;

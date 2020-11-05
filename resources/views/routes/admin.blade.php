@@ -5,7 +5,14 @@
 	<div id="fullScreen" class="button"><i class="fas fa-compress"></i><i class="fas fa-expand"></i></div>
 	<div id="centerMap" class="button"><i class="far fa-compass"></i>></div>
 	<div id="addRoute" class="button"><i class="fas fa-route"></i></div>
+	<div id="addClient" class="button"><i class="fas fa-user-plus"></i></div>
 
+	<div id="clients">
+		@foreach($clients as $client)
+		<i class="fas fa-user" data-id="{{ $client->id }}" style="color: {{ $client->color }};"></i>
+		@endforeach
+	</div>
+	
 	<div id="qrScanner" class="overlay">
 		<video muted playsinline autoplay></video>
 		<div class="button close"><i class="fa fa-times"></i></div>
@@ -16,7 +23,7 @@
 		<div id="message"></div>
 	</div>
 	
-	<form id="add" class="overlay form-overlay" method="post">
+	<form id="newRoute" class="overlay form-overlay" method="post">
 		@csrf
 		<div class="button close"><i class="fa fa-times"></i></div>
 		<h2>Nieuwe route maken</h2>
@@ -30,12 +37,12 @@
 			<label for="color" class="d-none d-sm-block col-sm-2 col-form-label">Kleur</label>
 			<div class="col-sm-10">
 				<div class="input-group">
-					<input type="text" class="form-control" id="color" name="color" required placeholder="Kleur" pattern="^#[A-Fa-f0-9]{6}$" readonly>
-					<label for="color" class="input-group-append">
-					    <span class="input-group-text" id="colorPreview"><i class="fas fa-palette"></i></span>
+					<input type="text" class="form-control color" id="routeColor" name="color" required placeholder="Kleur" pattern="^#[A-Fa-f0-9]{6}$" readonly>
+					<label for="routeColor" class="input-group-append">
+					    <span class="input-group-text" id="routeColorPreview"><i class="fas fa-palette"></i></span>
 					</label>
 				</div>
-				<input type="hidden" id="second_color" name="second_color">
+				<input type="hidden" id="routeSecondColor" name="second_color">
 			</div>
 		</div>
 		
@@ -45,6 +52,40 @@
 		<button class="btn btn-primary" name="add" value="1"><i class="fas fa-save"></i> Opslaan</button>
 	</form>
 	
+	<form id="newClient" class="overlay form-overlay" method="post" action="{{ route('admin.clients') }}">
+		@csrf
+		<div class="button close"><i class="fa fa-times"></i></div>
+		<h2>Nieuwe deelnemer maken</h2>
+		<div class="form-group row">
+			<label for="name" class="d-none d-sm-block col-sm-2 col-form-label">Naam</label>
+			<div class="col-sm-10">
+				<input type="text" class="form-control" id="name" name="name" required placeholder="Naam">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label for="color" class="d-none d-sm-block col-sm-2 col-form-label">Kleur</label>
+			<div class="col-sm-10">
+				<div class="input-group">
+					<input type="text" class="form-control color" id="clientColor" name="color" required placeholder="Kleur" pattern="^#[A-Fa-f0-9]{6}$" readonly>
+					<label for="clientColor" class="input-group-append">
+					    <span class="input-group-text" id="clientColorPreview"><i class="fas fa-palette"></i></span>
+					</label>
+				</div>
+				<input type="hidden" id="clientSecondColor" name="second_color">
+			</div>
+		</div>
+
+		<button class="btn btn-primary" name="add" value="1"><i class="fas fa-save"></i> Opslaan</button>
+	</form>
+	
+	<form id="client" class="overlay form-overlay" method="post">
+		@csrf
+		<div class="button close"><i class="fa fa-times"></i></div>
+		<h2>Deelnemer bewerken</h2>
+		
+		<div class="qr"></div>
+	</form>
+		
 	<form id="edit" class="overlay form-overlay" method="post">
 		@csrf
 		<div class="button close"><i class="fa fa-times"></i></div>
@@ -119,21 +160,29 @@
 		
 	});
 	$('#addRoute').click(function() {
-		$('form#add').addClass('active');
+		$('form#newRoute').addClass('active');
 		newMarker.setIcon(L.svgIcon({
 			color: '#ff0000',
 			borderColor: '#bf0000',
 			html: '<i class="fas fa-asterisk"></i>'
 		}));
 		newMarker.addTo(map).setLatLng(map.getCenter()).bounce(1);
-		map.panBy([0, $('form#add').height() / -2]);
+		map.panBy([0, $('form#newRoute').height() / -2]);
 		
 		$('#new_lat').val(map.getCenter().lat);
 		$('#new_lng').val(map.getCenter().lng);
 	});
-	$('form#add .close').click(function() {
-		$('form#add').removeClass('active');
+	$('form#newRoute .close').click(function() {
+		$('form#newRoute').removeClass('active');
 		newMarker.remove();
+	});
+	
+	
+	$('#addClient').click(function() {
+		$('form#newClient').addClass('active');
+	});
+	$('form#newClient .close').click(function() {
+		$('form#newClient').removeClass('active');
 	});
 	
 	$('form#edit .close').click(function() {
@@ -204,11 +253,11 @@
 		editRoute = null;
 	});
 	
-	$('#color').colorpicker({
+	$('.color').colorpicker({
 		useAlpha: false,
 		format: 'hex'
 	});
-	$('#color').on('colorpickerChange', function(e) {
+	$('#routeColor').on('colorpickerChange', function(e) {
 		var borderColor = e.color.api('hsl');
 		if(borderColor.api('lightness') < 50) {
 			borderColor._color.color[2] += (100 - borderColor._color.color[2]) * 0.25;
@@ -216,8 +265,8 @@
 			borderColor._color.color[2] -= borderColor._color.color[2] * 0.25;
 		}
 		
-		$('#second_color').val(borderColor.toHexString());
-        $('#colorPreview').css({
+		$('#routeSecondColor').val(borderColor.toHexString());
+        $('#routeColorPreview').css({
 			'background-color': e.color.toHexString(),
 			'border-color': borderColor.toHexString(),
 			'color': borderColor.toHexString()
@@ -227,6 +276,21 @@
 			borderColor: borderColor.toHexString(),
 			html: '<i class="fas fa-asterisk"></i>'
 		}));
+	});
+	$('#clientColor').on('colorpickerChange', function(e) {
+		var borderColor = e.color.api('hsl');
+		if(borderColor.api('lightness') < 50) {
+			borderColor._color.color[2] += (100 - borderColor._color.color[2]) * 0.25;
+		} else {
+			borderColor._color.color[2] -= borderColor._color.color[2] * 0.25;
+		}
+		
+		$('#clientSecondColor').val(borderColor.toHexString());
+        $('#clientColorPreview').css({
+			'background-color': e.color.toHexString(),
+			'border-color': borderColor.toHexString(),
+			'color': borderColor.toHexString()
+		});
 	});
 	
 	var map = L.map('map').setView({!! json_encode($mapCenter) !!}, 13);
@@ -342,6 +406,7 @@
 					this.bounce(2);
 				}
 				$('form#edit').addClass('active');
+				$('form#edit h2').html('Route bewerken: ' + this.options.route.name);
 				$('#point_id').val(this.options.point_id);
 				$('#route_id').val(this.options.route_id);
 				$('#qr_code').val(this.options.code);
@@ -386,6 +451,30 @@
 	@endif
 	$('#status .button.close').click(function() {
 		$('#status').removeClass('active');
+	});
+	
+	
+	
+	
+	var clients = {!! json_encode($clients->keyBy('id')) !!};
+	
+	$('#clients i').on('click', function() {
+		var client = clients[$(this).attr('data-id')];
+		
+		$('form#client').addClass('active');
+		$('form#client h2').html('Deelnemer bewerken: ' + client.name);
+		
+		new QRCode($('form#client .qr')[0], {
+			text: client.code,
+			width: 128,
+			height: 128,
+			colorDark : "#000000",
+			colorLight : "#ffffff",
+			correctLevel : QRCode.CorrectLevel.H
+		});
+	});
+	$('form#client .close').click(function() {
+		$('form#client').removeClass('active');
 	});
 </script>
 <script type="module">
