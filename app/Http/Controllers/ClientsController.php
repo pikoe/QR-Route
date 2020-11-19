@@ -29,6 +29,17 @@ class ClientsController extends Controller {
 			return redirect()->back();
 		}
 		
+		if($request->isMethod('post') && $request->edit) {
+			$client = Client::find($request->id);
+			if($client) {
+				$client->fill($request->all());
+				if($client->clientPoints()->count() == 0) {
+					$client->route_id = $request->route_id;
+				}
+				$client->save();
+			}
+			return redirect()->back();
+		}
 		return view('clients.admin', [
 			'clients' => [],
 		]);

@@ -114,7 +114,7 @@ class RoutesController extends Controller {
 		
 		return view('routes.admin', [
 			'routes' => Route::all(),
-			'clients' => Client::all(),
+			'clients' => Client::with('clientPoints')->get(),
 			'mapFit' => !$request->session()->has('mapCenter'),
 			'mapCenter' => $request->session()->get('mapCenter', [51.75294164, 5.89340866]),
 		]);

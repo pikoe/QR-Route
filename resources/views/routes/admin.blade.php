@@ -57,13 +57,13 @@
 		<div class="button close"><i class="fa fa-times"></i></div>
 		<h2>Nieuwe deelnemer maken</h2>
 		<div class="form-group row">
-			<label for="name" class="d-none d-sm-block col-sm-2 col-form-label">Naam</label>
+			<label for="clientName" class="d-none d-sm-block col-sm-2 col-form-label">Naam</label>
 			<div class="col-sm-10">
-				<input type="text" class="form-control" id="name" name="name" required placeholder="Naam">
+				<input type="text" class="form-control" id="clientName" name="name" required placeholder="Naam">
 			</div>
 		</div>
 		<div class="form-group row">
-			<label for="color" class="d-none d-sm-block col-sm-2 col-form-label">Kleur</label>
+			<label for="clientColor" class="d-none d-sm-block col-sm-2 col-form-label">Kleur</label>
 			<div class="col-sm-10">
 				<div class="input-group">
 					<input type="text" class="form-control color" id="clientColor" name="color" required placeholder="Kleur" pattern="^#[A-Fa-f0-9]{6}$" readonly>
@@ -78,12 +78,47 @@
 		<button class="btn btn-primary" name="add" value="1"><i class="fas fa-save"></i> Opslaan</button>
 	</form>
 	
-	<form id="client" class="overlay form-overlay" method="post">
+	<form id="client" class="overlay form-overlay" method="post" action="{{ route('admin.clients') }}">
 		@csrf
 		<div class="button close"><i class="fa fa-times"></i></div>
-		<h2>Deelnemer bewerken</h2>
+		<h2>Deelnemer</h2>
 		
+		<input type="hidden" id="editClientId" name="id">
 		<div class="qr"></div>
+		
+		<div class="form-group row">
+			<label for="editClientName" class="d-none d-sm-block col-sm-2 col-form-label">Naam</label>
+			<div class="col-sm-10">
+				<input type="text" class="form-control" id="editClientName" name="name" required placeholder="Naam">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label for="editClientColor" class="d-none d-sm-block col-sm-2 col-form-label">Kleur</label>
+			<div class="col-sm-10">
+				<div class="input-group">
+					<input type="text" class="form-control color" id="editClientColor" name="color" required placeholder="Kleur" pattern="^#[A-Fa-f0-9]{6}$" readonly>
+					<label for="editClientColor" class="input-group-append">
+					    <span class="input-group-text" id="editClientColorPreview"><i class="fas fa-palette"></i></span>
+					</label>
+				</div>
+				<input type="hidden" id="editClientSecondColor" name="second_color">
+			</div>
+		</div>
+		
+		
+		<div class="form-group row">
+			<label for="editClientRoute" class="d-none d-sm-block col-sm-2 col-form-label">Route</label>
+			<div class="col-sm-10">
+				<select class="form-control" id="editClientRoute" name="route_id">
+					<option></option>
+					@foreach($routes as $route)
+					<option value="{{ $route->id }}">{{ $route->name }}</option>
+					@endforeach
+				</select>
+			</div>
+		</div>
+
+		<button class="btn btn-primary" name="edit" value="1"><i class="fas fa-save"></i> Opslaan</button>
 	</form>
 		
 	<form id="edit" class="overlay form-overlay" method="post">
@@ -292,6 +327,21 @@
 			'color': borderColor.toHexString()
 		});
 	});
+	$('#editClientColor').on('colorpickerChange', function(e) {
+		var borderColor = e.color.api('hsl');
+		if(borderColor.api('lightness') < 50) {
+			borderColor._color.color[2] += (100 - borderColor._color.color[2]) * 0.25;
+		} else {
+			borderColor._color.color[2] -= borderColor._color.color[2] * 0.25;
+		}
+		
+		$('#editClientSecondColor').val(borderColor.toHexString());
+        $('#editClientColorPreview').css({
+			'background-color': e.color.toHexString(),
+			'border-color': borderColor.toHexString(),
+			'color': borderColor.toHexString()
+		});
+	});
 	
 	var map = L.map('map').setView({!! json_encode($mapCenter) !!}, 13);
 
@@ -462,8 +512,9 @@
 		var client = clients[$(this).attr('data-id')];
 		
 		$('form#client').addClass('active');
-		$('form#client h2').html('Deelnemer bewerken: ' + client.name);
+		// $('form#client h2').html('Deelnemer bewerken: ' + client.name);
 		
+		$('form#client .qr').html('');
 		new QRCode($('form#client .qr')[0], {
 			text: client.code,
 			width: 128,
@@ -472,6 +523,16 @@
 			colorLight : "#ffffff",
 			correctLevel : QRCode.CorrectLevel.H
 		});
+		
+		$('#editClientId').val(client.id);
+		$('#editClientName').val(client.name);
+		$('#editClientColor').val(client.color).trigger('change');
+		$('#editClientRoute').val(client.route_id);
+		if(client.client_points.length) {
+			$('#editClientRoute').prop('readonly', true);
+		} else {
+			$('#editClientRoute').prop('readonly', false);
+		}
 	});
 	$('form#client .close').click(function() {
 		$('form#client').removeClass('active');
