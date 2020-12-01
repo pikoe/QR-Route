@@ -34,9 +34,6 @@
 		
 		popupAnchor: [0, -43] // point from which the popup should open relative to the iconAnchor
 	});
-	/*L.marker([52.20142, 6.20114], {
-		icon: markerIcon
-	}).addTo(map);*/
 	
 	var markerStepsIcon = L.icon({
 		iconUrl: 'img/marker-steps.png',
@@ -61,22 +58,58 @@
 		popupAnchor: [0, -43] // point from which the popup should open relative to the iconAnchor
 	});
 	
-	var nextCode = [52.20342, 6.25114];
-	var searchMarker = L.marker(nextCode, {
-		icon: markerSearchIcon
+	var foundCodes = [];
+	var foundLine = L.polyline([], {
+		color: '#ee66cc',
+		weight: 2,
+		dashArray: '3 4'
 	}).addTo(map);
+	var searchCode = false;
+	var searchMarker = L.marker([52.20342, 6.25114], {
+		icon: markerSearchIcon
+	});
 	
-	var searchLine = L.polyline([nextCode], {
+	var searchLine = L.polyline([], {
 		color: '#ff6600',
 		weight: 2,
 		dashArray: '3 4'
 	}).addTo(map);
+	
 	
 	var positionHistory = [];
 	var positionHistoryLine = L.polyline(positionHistory, {
 		color: '#cc0000',
 		weight: 2
 	}).addTo(map);
+	
+	@if($client && $client->route)
+		@php
+			$searchPoint = $client->route->startPoint;
+		@endphp
+		
+		@foreach($client->clientPoints as $clientPiont)
+			foundCodes.push([{{ $clientPiont->point->lat }}, {{ $clientPiont->point->lng }}]);
+			L.marker([{{ $clientPiont->point->lat }}, {{ $clientPiont->point->lng }}], {
+				icon: markerIcon
+			}).addTo(map);
+			
+			@php
+				$searchPoint = $clientPiont->point->nextPoint;
+			@endphp
+		@endforeach
+		foundLine.setLatLngs(foundCodes);
+		
+		@if($searchPoint)
+			searchCode = [{{ $searchPoint->lat }}, {{ $searchPoint->lng }}];
+			// weergeven als er wat weer te geven valt
+			searchMarker.setLatLng(searchCode).addTo(map);
+			searchLine.setLatLngs([searchCode]);
+		@endif
+		
+		@foreach($client->clientLocations as $clientLocation)
+			positionHistory.push([{{ $clientLocation->lat }}, {{ $clientLocation->lng }}]);
+		@endforeach
+	@endif
 	
 	var positionUpdateAt = 0,
 		positionPostAt = 0,
@@ -105,8 +138,9 @@
 			if(!positionHistory.length || positionHistory[positionHistory.length - 1][0] !== position.coords.latitude || positionHistory[positionHistory.length - 1][1] !== position.coords.longitude) {
 				positionHistory.push([position.coords.latitude, position.coords.longitude]);
 				positionHistoryLine.setLatLngs(positionHistory);
-				
-				searchLine.setLatLngs([nextCode, [position.coords.latitude, position.coords.longitude]]);
+				if(searchCode) {
+					searchLine.setLatLngs([searchCode, [position.coords.latitude, position.coords.longitude]]);
+				}
 				positionUpdateAt = new Date().getTime();
 			}
 			
@@ -160,19 +194,45 @@
 				$('#status #message').html(data.error);
 				$('#status').addClass('active');
 			} else {
-				nextCode = [data.lat, data.lng];
-				searchMarker.setLatLng(nextCode);
-				if(positionHistory.length) {
-					searchLine.setLatLngs([nextCode, positionHistory[positionHistory.length - 1]]);
-					map.panInsideBounds(L.latLngBounds(nextCode, positionHistory[positionHistory.length - 1]), {
-						paddingTopLeft: [25, 55],
-						paddingBottomRight: [25, 5]
-					});
+				
+				/*
+				L.marker([52.20142, 6.20114], {
+					icon: markerIcon
+				}).addTo(map);
+				*/
+				if(data.hasOwnProperty('search')) {
+					searchCode = [data.search.lat, data.search.lng];
 				} else {
-					map.panInside(nextCode, {
-						paddingTopLeft: [25, 55],
-						paddingBottomRight: [25, 5]
-					});
+					searchCode = false;
+				}
+				
+				if(searchCode) {
+					// weergeven als er wat weer te geven valt
+					searchMarker.setLatLng(searchCode).addTo(map);
+					if(positionHistory.length) {
+						searchLine.setLatLngs([searchCode, positionHistory[positionHistory.length - 1]]);
+						map.panInsideBounds(L.latLngBounds(searchCode, positionHistory[positionHistory.length - 1]), {
+							paddingTopLeft: [25, 55],
+							paddingBottomRight: [25, 5]
+						});
+						map.fitBounds(L.latLngBounds(searchCode, positionHistory[positionHistory.length - 1]));
+					} else {
+						map.panInside(searchCode, {
+							paddingTopLeft: [25, 55],
+							paddingBottomRight: [25, 5]
+						});
+					}
+				}
+				
+				if(data.hasOwnProperty('found')) {
+					foundCode = [data.found.lat, data.found.lng];
+					
+					foundCodes.push(foundCode);
+					foundLine.setLatLngs(foundCodes);
+					
+					L.marker(foundCode, {
+						icon: markerIcon
+					}).addTo(map);
 				}
 			}
 		});

@@ -19,6 +19,19 @@ use App\Models\Client;
  */
 
 class ClientsController extends Controller {
+	
+	public function search(Request $request) {
+	
+		if($request->session()->has('client_id')) {
+			$client = Client::find($request->session()->get('client_id'));
+		} else {
+			$client = false;	
+		}
+		return view('clients.search', [
+			'client' => $client,
+		]);
+	}
+			
 	public function admin(Request $request) {
 		if($request->isMethod('post') && $request->add) {
 			$client = new Client;

@@ -13,9 +13,7 @@
 
 Auth::routes(['register' => false]);
 
-Route::get('/', function () {
-    return view('search');
-});
+Route::get('/', ['as' => 'clients.search', 'uses' => 'ClientsController@search']);
 
 Route::post('check', ['as' => 'points.check', 'uses' => 'PointsController@checkCode']);
 Route::post('update', ['as' => 'points.update', 'uses' => 'PointsController@updateLocation']);
