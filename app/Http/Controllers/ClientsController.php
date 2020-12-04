@@ -36,6 +36,7 @@ class ClientsController extends Controller {
 		if($request->isMethod('post') && $request->add) {
 			$client = new Client;
 			$client->fill($request->all());
+			$client->route_id = $request->route_id;
 			$client->code = Str::random(15);
 			$client->save();
 			
@@ -53,8 +54,14 @@ class ClientsController extends Controller {
 			}
 			return redirect()->back();
 		}
-		return view('clients.admin', [
-			'clients' => [],
-		]);
+		
+		if($request->isMethod('post') && $request->get) {
+			$client = Client::find($request->id);
+			
+			return [
+				'points' => $client->clientPoints,
+				'locations' => $client->clientLocations,
+			];
+		}
 	}
 }

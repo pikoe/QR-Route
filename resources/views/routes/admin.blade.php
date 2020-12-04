@@ -74,7 +74,19 @@
 				<input type="hidden" id="clientSecondColor" name="second_color">
 			</div>
 		</div>
-
+		
+		<div class="form-group row">
+			<label for="clientRoute" class="d-none d-sm-block col-sm-2 col-form-label">Route</label>
+			<div class="col-sm-10">
+				<select class="form-control" id="clientRoute" name="route_id">
+					<option></option>
+					@foreach($routes as $route)
+					<option value="{{ $route->id }}">{{ $route->name }}</option>
+					@endforeach
+				</select>
+			</div>
+		</div>
+		
 		<button class="btn btn-primary" name="add" value="1"><i class="fas fa-save"></i> Opslaan</button>
 	</form>
 	
@@ -104,7 +116,6 @@
 				<input type="hidden" id="editClientSecondColor" name="second_color">
 			</div>
 		</div>
-		
 		
 		<div class="form-group row">
 			<label for="editClientRoute" class="d-none d-sm-block col-sm-2 col-form-label">Route</label>
@@ -533,9 +544,29 @@
 		} else {
 			$('#editClientRoute').prop('readonly', false);
 		}
+		
+		
+		
+		
+		// todo, het bewandelde pad ophalen en tonen
+		
+		$.ajax({
+			url: '{{ route('admin.clients') }}',
+			method: 'POST',
+			data: {
+				get: true,
+				id: client.id
+			},
+			context: document.body
+		}).done(function(data) {
+			
+		});
 	});
 	$('form#client .close').click(function() {
 		$('form#client').removeClass('active');
+		
+		
+		// todo, het bewandelde pad verbergen
 	});
 </script>
 <script type="module">

@@ -202,11 +202,7 @@
 				*/
 				if(data.hasOwnProperty('search')) {
 					searchCode = [data.search.lat, data.search.lng];
-				} else {
-					searchCode = false;
-				}
-				
-				if(searchCode) {
+					
 					// weergeven als er wat weer te geven valt
 					searchMarker.setLatLng(searchCode).addTo(map);
 					if(positionHistory.length) {
@@ -222,10 +218,15 @@
 							paddingBottomRight: [25, 5]
 						});
 					}
+				} else {
+					searchCode = false;
+					
+					searchMarker.remove();
+					searchLine.remove();
 				}
 				
 				if(data.hasOwnProperty('found')) {
-					foundCode = [data.found.lat, data.found.lng];
+					var foundCode = [data.found.lat, data.found.lng];
 					
 					foundCodes.push(foundCode);
 					foundLine.setLatLngs(foundCodes);
@@ -234,13 +235,17 @@
 						icon: markerIcon
 					}).addTo(map);
 				}
+				
+				if(data.message) {
+					$('#status #message').html(data.message);
+					$('#status').addClass('active');
+				}
 			}
 		});
 	}
 	
 	searchMarker.on('click', function() {
-	    // setResult('sdf');
-		
+	    $('#status').removeClass('active');
 		$('#qrScanner').addClass('active');
 		scanner.start();
 		map.panInside(this.getLatLng(), {
@@ -259,6 +264,7 @@
 	});
 	
 	$('#login').on('shortclick', function() {
+	    $('#status').removeClass('active');
 		$('#qrScanner').addClass('active');
 		scanner.start();
 	});
