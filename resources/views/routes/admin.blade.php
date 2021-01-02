@@ -441,7 +441,8 @@
 		route.line = L.polyline([], {
 			color: '{{ $route->color }}',
 			weight: 2,
-			dashArray: '3 4'
+			dashArray: '3, 4',
+			dashOffset: '0'
 		}).addTo(map);
 		@foreach($route->getAllPoints() as $point)
 			latLngs.push([{{ $point->lat }}, {{ $point->lng }}]);
@@ -519,6 +520,17 @@
 	
 	var clients = {!! json_encode($clients->keyBy('id')) !!};
 	
+	for(var id in clients) { 
+		if (clients.hasOwnProperty(id)) {
+			clients[id].line = L.polyline([], {
+				color: clients[id].color,
+				weight: 2,
+				dashArray: '10, 4',
+				dashOffset: '0'
+			}).addTo(map);
+		}
+	}
+
 	$('#clients i').on('click', function() {
 		var client = clients[$(this).attr('data-id')];
 		
@@ -546,8 +558,6 @@
 		}
 		
 		
-		
-		
 		// todo, het bewandelde pad ophalen en tonen
 		
 		$.ajax({
@@ -559,7 +569,14 @@
 			},
 			context: document.body
 		}).done(function(data) {
+			clients[client.id].client_points = data.points;
+			clients[client.id].client_locations = data.locations;
 			
+			var locations = [];
+			clients[client.id].client_locations.forEach(location => locations.push([location.lat, location.lng]));
+			clients[client.id].line.setLatLngs(locations);
+			
+			console.log(clients[client.id].line);
 		});
 	});
 	$('form#client .close').click(function() {
