@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\ClientPoint;
 use App\Models\ClientLocation;
+use Carbon\Carbon;
 
 class PointsController extends Controller {
 	public function checkCode(Request $request) {
@@ -43,13 +44,15 @@ class PointsController extends Controller {
 							]
 						];
 					} else {
+						$finishedInSeconds = Carbon::parse($client->clientPoints()->max('created_at'))->timestamp - Carbon::parse($client->clientPoints()->min('created_at'))->timestamp;
+						
 						return [
 							'client_id' => $client->id,
 							'found' => [
 								'lat' => $searchPoint->lat,
 								'lng' => $searchPoint->lng,
 							],
-							'message' => 'Dit was het laatste punt van de route',
+							'message' => 'Dit was het laatste punt van de route. Jullie tijd: ' . format_seconds($finishedInSeconds),
 						];
 					}
 				}
@@ -60,14 +63,32 @@ class PointsController extends Controller {
 				$request->session()->put('client_id', $client->id);
 				
 				if($client->route && $client->route->startPoint) {
-					// todo route geven
-					return [
-						'client_id' => $client->id,
-						'search' => [
-							'lat' => $client->route->startPoint->lat,
-							'lng' => $client->route->startPoint->lng,
-						],
-					];
+					
+					$searchPoint = $client->route->startPoint;
+				
+					foreach($client->clientPoints as $clientPiont) {
+						if($clientPiont->point->nextPoint) {
+							$searchPoint = $clientPiont->point->nextPoint;
+						} else {
+							$searchPoint = null;
+						}
+					}
+					if($searchPoint) {
+						// todo route geven
+						return [
+							'client_id' => $client->id,
+							'search' => [
+								'lat' => $searchPoint->lat,
+								'lng' => $searchPoint->lng,
+							],
+						];
+					} else {
+						$finishedInSeconds = Carbon::parse($client->clientPoints()->max('created_at'))->timestamp - Carbon::parse($client->clientPoints()->min('created_at'))->timestamp;
+						return [
+							'client_id' => $client->id,
+							'message' => 'Dit was het laatste punt van de route. Jullie tijd: ' . format_seconds($finishedInSeconds),
+						];
+					}
 				} else {
 					return [
 						'client_id' => $client->id,
@@ -81,7 +102,37 @@ class PointsController extends Controller {
 			'error' => 'Dit is niet een code die we zoeken',
 		];
 	}
-	
+	public function startCode(Request $request) {
+		$client = Client::where('code', $request->code)->first();
+		if($client) {
+			$request->session()->put('client_id', $client->id);
+
+			if($client->route && $client->route->startPoint) {
+
+				$searchPoint = $client->route->startPoint;
+
+				foreach($client->clientPoints as $clientPiont) {
+					if($clientPiont->point->nextPoint) {
+						$searchPoint = $clientPiont->point->nextPoint;
+					} else {
+						$searchPoint = null;
+					}
+				}
+				if($searchPoint) {
+					return redirect('/');
+				} else {
+					$finishedInSeconds = Carbon::parse($client->clientPoints()->max('created_at'))->timestamp - Carbon::parse($client->clientPoints()->min('created_at'))->timestamp;
+					return redirect('/')->with([
+						'message' => 'Dit was het laatste punt van de route. Jullie tijd: ' . format_seconds($finishedInSeconds),
+					]);
+				}
+			} else {
+				return redirect('/')->with([
+					'message' => 'Er is nog geen startpunt bekend',
+				]);
+			}
+		}
+	}
 	public function updateLocation(Request $request) {
 		// client location aanmaken
 		if($request->session()->has('client_id')) {

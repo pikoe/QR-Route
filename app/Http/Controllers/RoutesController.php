@@ -31,7 +31,14 @@ class RoutesController extends Controller {
 				]
 			]);
 		} else if($request->isMethod('post') && $request->edit) {
-			if($request->code !== null && Point::where('code', '=', $request->code)->where('id', '<>', $request->point_id)->exists()) {
+			$point = Point::find($request->point_id);
+			
+			if(!$point) {
+				return redirect()->back()->with([
+					'message' => 'Pointer niet gevonden',
+				]);
+			}
+			if($request->code !== null && Point::where('code', '=', $request->code)->where('route_id', '=', $point->route_id)->where('id', '<>', $point->id)->exists()) {
 				return redirect()->back()->with([
 					'mapCenter' => [
 						$request->lat,
@@ -40,7 +47,7 @@ class RoutesController extends Controller {
 					'message' => 'QR code is al in gebruik',
 				]);
 			}
-			$point = Point::find($request->point_id);
+			
 			$point->lat = $request->lat;
 			$point->lng = $request->lng;
 			$point->code = $request->code;

@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Client;
+use Carbon\Carbon;
 
 /**
  * Description of ClientsController
@@ -57,10 +58,33 @@ class ClientsController extends Controller {
 		
 		if($request->isMethod('post') && $request->get) {
 			$client = Client::find($request->id);
+			$time = 'Nog geen route';
 			
+			if($client->route && $client->route->startPoint) {
+				$searchPoint = $client->route->startPoint;
+				foreach($client->clientPoints as $clientPiont) {
+					if($clientPiont->point->nextPoint) {
+						$searchPoint = $clientPiont->point->nextPoint;
+					} else {
+						$searchPoint = null;
+					}
+				}
+				if($searchPoint) {
+					if($client->clientPoints()->exists()) {
+						$busyInSeconds = Carbon::now()->timestamp - Carbon::parse($client->clientPoints()->min('created_at'))->timestamp;
+						$time = 'Bezig: ' . format_seconds($busyInSeconds);
+					} else {
+						$time = 'Eerste punt nog niet gevonden';
+					}
+				} else {
+					$finishedInSeconds = Carbon::parse($client->clientPoints()->max('created_at'))->timestamp - Carbon::parse($client->clientPoints()->min('created_at'))->timestamp;
+					$time = 'Finish: ' . format_seconds($finishedInSeconds);
+				}
+			}	
 			return [
 				'points' => $client->clientPoints,
 				'locations' => $client->clientLocations,
+				'time' => $time,
 			];
 		}
 	}

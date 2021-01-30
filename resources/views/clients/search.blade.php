@@ -168,6 +168,11 @@
 		positionPostTimeout = setTimeout(postPosition, positionPostInterval);
 	}
 	postPosition();
+	
+	@if(session()->has('message'))
+	$('#status #message').text('{{ session()->get('message') }}');
+	$('#status').addClass('active');
+	@endif
 </script>
 <script type="module">
 	import QrScanner from "./js/qr-scanner.js";

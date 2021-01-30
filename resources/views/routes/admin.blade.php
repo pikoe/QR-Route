@@ -96,7 +96,7 @@
 		<h2>Deelnemer</h2>
 		
 		<input type="hidden" id="editClientId" name="id">
-		<div class="qr"></div>
+		<a href="#" class="qr"></a>
 		
 		<div class="form-group row">
 			<label for="editClientName" class="d-none d-sm-block col-sm-2 col-form-label">Naam</label>
@@ -127,6 +127,11 @@
 					@endforeach
 				</select>
 			</div>
+		</div>
+		
+		<div class="form-group row">
+			<label class="d-none d-sm-block col-sm-2 col-form-label">Status</label>
+			<div class="col-sm-10" id="clientTime"></div>
 		</div>
 
 		<button class="btn btn-primary" name="edit" value="1"><i class="fas fa-save"></i> Opslaan</button>
@@ -537,7 +542,7 @@
 		$('form#client').addClass('active');
 		// $('form#client h2').html('Deelnemer bewerken: ' + client.name);
 		
-		$('form#client .qr').html('');
+		$('form#client .qr').html('').attr('href', '/start?code=' + client.code);
 		new QRCode($('form#client .qr')[0], {
 			text: client.code,
 			width: 128,
@@ -575,6 +580,8 @@
 			var locations = [];
 			clients[client.id].client_locations.forEach(location => locations.push([location.lat, location.lng]));
 			clients[client.id].line.setLatLngs(locations);
+			
+			$('#clientTime').html(data.time);
 			
 			console.log(clients[client.id].line);
 		});
