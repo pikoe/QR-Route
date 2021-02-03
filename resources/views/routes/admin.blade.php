@@ -156,7 +156,7 @@
 					<label for="qr_code" class="input-group-prepend">
 					    <span class="input-group-text" id="qr_code_label"><i class="fas fa-qrcode"></i></span>
 					</label>
-					<input type="text" class="form-control" id="qr_code" name="code" placeholder="QR code" readonly>
+					<input type="text" class="form-control" id="qr_code" name="code" placeholder="QR code">
 					<div class="input-group-append">
 						<span class="btn btn-outline-secondary" id="qr_code_clear"><i class="fa fa-times"></i></span>
 					</div>
@@ -359,7 +359,20 @@
 		});
 	});
 	
-	var map = L.map('map').setView({!! json_encode($mapCenter) !!}, 13);
+	var map = L.map('map'),
+		storedPosition = false;
+	if(localStorage.getItem('zoom')) {
+		storedPosition = true;
+		map.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], localStorage.getItem('zoom'));
+	} else {
+		map.setView({!! json_encode($mapCenter) !!}, 13);
+	}
+	
+	map.on('moveend', function() {
+		localStorage.setItem('lat', map.getCenter().lat);
+		localStorage.setItem('lng', map.getCenter().lng);
+		localStorage.setItem('zoom', map.getZoom());
+	});
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -509,7 +522,9 @@
 	@endforeach
 	
 	@if($mapFit)
-	map.fitBounds(L.latLngBounds(latLngs));
+	if(!storedPosition) {
+		map.fitBounds(L.latLngBounds(latLngs));
+	}
 	@endif
 	
 	@if(session()->has('message'))
@@ -608,7 +623,7 @@
 		$('form#edit').addClass('active');
 	}
 	
-	$('#qr_code, #qr_code_label').on('click', function() {
+	$('#qr_code_label').on('click', function() {
 		$('form#edit').removeClass('active');
 		$('#qrScanner').addClass('active');
 		scanner.start();

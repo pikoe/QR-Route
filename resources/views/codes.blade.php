@@ -26,6 +26,20 @@
 	<div>Route</div>
 	<div>Kompas</div>
 	<div>Uitkijk</div>
+	
+	<div>IJberg</div>
+	<div>Groenland</div>
+	<div>IJsland</div>
+	<div>Kajuit</div>
+	<div>Ijspalijs</div>
+	<div>Noodweer</div>
+	
+	<div>Noorwegen</div>
+	<div>Finland</div>
+	<div>Alaska</div>
+	<div>Poolcirkel</div>
+	<div>IJsvisser</div>
+	<div>Hozen</div>
 </div>
 @endsection
 
@@ -34,8 +48,8 @@
 	$('#codes > div').each(function() {
 		new QRCode(this, {
 			text: this.innerHTML + Math.floor(Math.random() * 100),
-			width: 128,
-			height: 128,
+			width: 148,
+			height: 148,
 			colorDark : "#000000",
 			colorLight : "#ffffff",
 			correctLevel : QRCode.CorrectLevel.H
