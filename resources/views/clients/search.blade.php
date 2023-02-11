@@ -58,6 +58,29 @@
 		popupAnchor: [0, -43] // point from which the popup should open relative to the iconAnchor
 	});
 	
+
+	var pyramidsIcon = L.icon( {
+		iconUrl: 'img/pyramids.svg',
+		iconSize: [96, 51],
+		iconAnchor: [48, 39],
+	});
+	L.marker([51.773674, 5.813636], {
+		icon: pyramidsIcon,
+		interactive: false,
+	}).addTo(map);
+	L.marker([51.789162, 5.793315], {
+		icon: pyramidsIcon,
+		interactive: false,
+	}).addTo(map);
+	L.marker([51.758589, 5.822161], {
+		icon: pyramidsIcon,
+		interactive: false,
+	}).addTo(map);
+	L.marker([51.759803, 5.856893], {
+		icon: pyramidsIcon,
+		interactive: false,
+	}).addTo(map);
+
 	var foundCodes = [];
 	var foundLine = L.polyline([], {
 		color: '#ee66cc',
